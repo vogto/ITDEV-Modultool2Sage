@@ -35,7 +35,7 @@ create table MODTO.t_Module
   ,userneu nvarchar(20) collate Latin1_General_CS_AS_KS_WS
   ,dataen datetime
   ,useraen nvarchar(20) collate Latin1_General_CS_AS_KS_WS
-  ,id decimal(38,0)
+  ,mod_id decimal(38,0)
   ,description_de nvarchar(40) collate Latin1_General_CS_AS_KS_WS
   ,description_en nvarchar(40) collate Latin1_General_CS_AS_KS_WS
   ,theme_de nvarchar(1000) collate Latin1_General_CS_AS_KS_WS
@@ -63,6 +63,6 @@ create table MODTO.t_Stores
   ,dataen datetime
   ,useraen nvarchar(20) collate Latin1_General_CS_AS_KS_WS
   ,store_id decimal(38,0)
-  ,id decimal(38,0)
+  ,mod_id decimal(38,0)
   ,classificationABC nvarchar(2) collate Latin1_General_CS_AS_KS_WS
 ) with(data_compression=page)

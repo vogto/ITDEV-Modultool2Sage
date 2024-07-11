@@ -41,6 +41,9 @@ begin
 	  ,0
   from  
     [test62].[dbo].l900b (nolock)
+    join [test62].[dbo].view_mandant vm on 
+      vm.fi_nr=l900b.fi_nr
+      and vm.AktiverMandant='ja'    
     join [test62].[dbo].view_kostenstellen vk on 
       vk.fi_nr=l900b.fi_nr
       and vk.lgnr=l900b.lgnr
@@ -49,8 +52,8 @@ begin
     --  and vkl.lgnr=l900b.lgnr
     --  and vkl.satzart=1
   where
-    l900b.fi_nr in (1,2,4)
-    and l900b.LagerTyp=1
+    l900b.LagerTyp=1
+    and l900b.lgnr>0
     and 
     (
       convert(date,l900b.datum_schliessung)>=convert(date,getdate())

@@ -1,4 +1,7 @@
-create procedure [MODTO].[p_Merge_ga982]
+USE [test62]
+GO
+
+CREATE procedure [MODTO].[p_Merge_ga982]
 as
 begin
 
@@ -38,7 +41,7 @@ begin
       ,br62h_module.userneu	
       ,br62h_module.dataen	
       ,br62h_module.useraen	
-      ,br62h_module.id	
+      ,br62h_module.mod_id	
       ,br62h_module.description_de	
       ,br62h_module.description_en	
       ,br62h_module.theme_de	
@@ -75,7 +78,7 @@ begin
       ,userneu
       ,dataen
       ,useraen
-      ,id
+      ,mod_id
       ,description_de
       ,description_en
       ,theme_de
@@ -92,7 +95,7 @@ begin
       ,updated_at
       ,is_hidden 
     ) on 
-    ( target.mod_id=source.id )
+    ( target.mod_id=source.mod_id )
   when  
 	  matched 
     and @rc>=0
@@ -151,7 +154,7 @@ begin
       )
       values
       (
-         source.id
+         source.mod_id
         ,source.description_de
         ,source.description_en
         ,source.module_type_id
@@ -187,7 +190,7 @@ begin
       --[dbstatistik].[butlers62_help].[MODTO].[t_ModuleGroup] mg
       [test62_help].[MODTO].[t_Module] m
       join @tmp tmp on 
-        tmp.modul_id=m.id
+        tmp.modul_id=m.mod_id
     where
       m.rec_status=2
       and m.rat!='d'
@@ -200,7 +203,7 @@ begin
       select distinct ga982.mod_id
       from ga982 (nolock)
       join [test62_help].[MODTO].[t_Module] br62h_module on 
-        br62h_module.id=ga982.mod_id
+        br62h_module.mod_id=ga982.mod_id
       where
         br62h_module.rec_status=2
         and br62h_module.rat='d'
@@ -214,7 +217,7 @@ begin
       delete from but.ga98210_prio where mod_id=@crs_modid
       delete from ga984 where mod_id=@crs_modid
       delete from ga982 where mod_id=@crs_modid
-      update [test62_help].[MODTO].[t_Module] set rec_status=3 where id=@crs_modid
+      update [test62_help].[MODTO].[t_Module] set rec_status=3 where mod_id=@crs_modid
 
       fetch next from crs_del into @crs_modid
     end
