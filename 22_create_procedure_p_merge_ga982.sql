@@ -27,7 +27,7 @@ begin
   from 
     [test62_help].[MODTO].[t_Module] br62h_module (nolock)    
   where
-    br62h_module.rec_status=2
+    br62h_module.rec_status=3
     and br62h_module.rat='d'
   
 
@@ -70,7 +70,7 @@ begin
       left join [test62].[dbo].b210 b210_update (nolock) on 
         b210_update.email=br62h_module.updated_by
     where
-      br62h_module.rec_status=2
+      br62h_module.rec_status=3
       and br62h_module.rat!='d'
   ) as source 
     ( rec_status
@@ -185,14 +185,14 @@ begin
   if (@rc>0 )
   begin
     update m with(updlock,rowlock)
-      set m.rec_status=3       
+      set m.rec_status=10
     from 
       --[dbstatistik].[butlers62_help].[MODTO].[t_ModuleGroup] mg
       [test62_help].[MODTO].[t_Module] m
       join @tmp tmp on 
         tmp.modul_id=m.mod_id
     where
-      m.rec_status=2
+      m.rec_status=3
       and m.rat!='d'
   end
 
@@ -205,7 +205,7 @@ begin
       join [test62_help].[MODTO].[t_Module] br62h_module on 
         br62h_module.mod_id=ga982.mod_id
       where
-        br62h_module.rec_status=2
+        br62h_module.rec_status=3
         and br62h_module.rat='d'
 
     open crs_del
@@ -217,7 +217,7 @@ begin
       delete from but.ga98210_prio where mod_id=@crs_modid
       delete from ga984 where mod_id=@crs_modid
       delete from ga982 where mod_id=@crs_modid
-      update [test62_help].[MODTO].[t_Module] set rec_status=3 where mod_id=@crs_modid
+      update [test62_help].[MODTO].[t_Module] set rec_status=10 where mod_id=@crs_modid
 
       fetch next from crs_del into @crs_modid
     end

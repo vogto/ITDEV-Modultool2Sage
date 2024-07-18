@@ -18,7 +18,7 @@ begin
   join [test62_help].[MODTO].[t_ModuleType] mt on 
     mt.id=ga980.modultool_typ_id
   where
-    mt.rec_status=2
+    mt.rec_status=3
     and mt.rat='d'
 
 
@@ -39,7 +39,7 @@ begin
       --[dbstatistik].[butlers62_help].[MODTO].[t_ModuleType]
       [test62_help].[MODTO].[t_ModuleType]
     where
-      rec_status=2
+      rec_status=3
   ) as source 
     ( rec_status
       ,rat
@@ -89,14 +89,14 @@ begin
   if (@rc>0 )
   begin
     update mt with(updlock,rowlock)
-      set mt.rec_status=3       
+      set mt.rec_status=10
     from 
       --[dbstatistik].[butlers62_help].[MODTO].[t_ModuleType] mt
       [test62_help].[MODTO].[t_ModuleType] mt
       join @tmp tmp on 
         tmp.modultool_typ_id=mt.id
     where
-      mt.rec_status=2
+      mt.rec_status=3
   end
 
 
