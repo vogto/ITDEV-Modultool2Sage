@@ -147,3 +147,70 @@
 --  set nocount on
 --  return
 --end
+
+
+/*
+
+  merge into ga984 as target
+  using 
+  (
+    select
+       ts.rec_status
+      ,ts.rat
+      ,ts.datneu
+      ,ts.userneu
+      ,ts.dataen
+      ,ts.useraen
+      ,ts.store_id
+      ,ts.mod_id
+      ,ts.classificationABC
+      ,1 as zugew
+    from 
+      --[dbstatistik].[butlers62_help].[MODTO].[t_Stores]
+      [test62_help].[MODTO].[t_Stores] ts
+    where
+      ts.rec_status=3
+      and ts.rat!='d'
+  ) as source 
+    (  rec_status
+      ,rat
+      ,datneu
+      ,userneu
+      ,dataen
+      ,useraen
+      ,store_id
+      ,mod_id
+      ,classificationABC
+      ,zugew
+    ) on 
+    ( target.lgnr=source.store_id)
+  when  
+	  matched 
+    and ( target.mod_id=source.mod_id )
+    and ( target.zugew=0 )    
+    then 
+      update set 
+         target.zugew=1
+  when  
+    --sätze in gaa984 auf zugew=0 die nicht in ModulTool Tabelle sind
+    not matched by source 
+    then 
+      update set 
+         target.zugew=0
+  when  
+    not matched by target
+    and ( target.mod_id=source.mod_id )
+    then 
+      insert ( fi_nr,lgnr,mod_id,zugew,dataen,useraen,datneu,userneu )           
+      values
+      (
+         null
+        ,source.store_id
+        ,source.mod_id
+        ,1
+        ,source.dataen
+        ,source.useraen
+        ,source.datneu
+        ,source.userneu
+      );
+*/

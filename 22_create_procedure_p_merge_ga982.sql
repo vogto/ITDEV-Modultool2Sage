@@ -234,3 +234,220 @@ begin
   set nocount on
   return
 end
+
+
+
+/*
+select * from [test62_help].[MODTO].[t_Module] where id=418
+--update [test62_help].[MODTO].[t_Module] set is_hidden=0 where id=418
+--update [test62_help].[MODTO].[t_Module] set description_en='Expendable items' where id=418
+--update [test62_help].[MODTO].[t_Module] set description_de='ABC' where id=418
+
+
+
+  declare 
+    @mod_typ_id                 decimal(38,0)
+    ,@mod_gruppe                decimal(38,0)
+    ,@setDelete                 int=0
+    ,@sage_mod_id               decimal(38,0)
+    ,@rc                        int=0
+    ,@user                      nvarchar(8) = dbo.fn_Benutzer()
+
+  create table #tmp (
+     rc               int
+    ,aktion           nvarchar(40)
+    ,mod_id	          decimal(38,0)
+    ,mod_bez1	        nvarchar(40)
+    ,mod_bez2	        nvarchar(40)
+    ,mod_typ_id	      decimal(38,0)
+    ,mod_status	      nvarchar(2)
+    ,dataen	          datetime
+    ,useraen	        nvarchar(8)
+    ,datneu	          datetime
+    ,userneu	        nvarchar(8)
+    ,mod_gruppe	      decimal(38,0)
+    ,mod_saison	      nvarchar(2)
+    ,mod_thema	      nvarchar(100)
+    ,datvon	          datetime
+    ,datbis	          datetime
+    ,rowid	          decimal(38,0)
+    ,saisonver	      nvarchar(1)
+    ,mod_path	        nvarchar(100)
+    ,mod_gvb984_hide	decimal(3,0)
+  )
+
+
+ merge into ga982 as target
+  using 
+  (
+    select 
+       br62h_module.rec_status	
+      ,br62h_module.rat	
+      ,br62h_module.datneu	
+      ,br62h_module.userneu	
+      ,br62h_module.dataen	
+      ,br62h_module.useraen	
+      ,br62h_module.id	
+      ,br62h_module.description_de	
+      ,br62h_module.description_en	
+      ,br62h_module.theme_de	
+      ,br62h_module.theme_en	
+      ,br62h_module.is_active	
+      ,br62h_module.is_seasonal	
+      ,br62h_module.available_from	
+      ,br62h_module.available_till	
+      --,br62h_module.module_type_id
+      ,ga980.mod_typ_id as module_type_id
+      --,br62h_module.module_group_id	
+      ,ga981.mod_gruppe as module_group_id
+      ,isnull(b210_create.logname,@user) as created_by
+      ,br62h_module.created_at	
+      ,isnull(b210_update.logname,@user) as updated_by
+      ,br62h_module.updated_at	
+      ,br62h_module.is_hidden
+    from 
+      [test62_help].[MODTO].[t_Module] br62h_module (nolock)
+      left join [test62].[dbo].ga980 (nolock) on 
+        ga980.modultool_typ_id=br62h_module.module_type_id
+      left join [test62].[dbo].ga981 (nolock) on 
+        ga981.modultool_gr_id=br62h_module.module_group_id
+      left join [test62].[dbo].b210 b210_create (nolock) on 
+        b210_create.email=br62h_module.created_by
+      left join [test62].[dbo].b210 b210_update (nolock) on 
+        b210_update.email=br62h_module.updated_by
+    where
+      br62h_module.rec_status=2
+      and br62h_module.id=418
+  ) as source 
+    ( rec_status
+      ,rat,datneu
+      ,userneu
+      ,dataen
+      ,useraen
+      ,id
+      ,description_de
+      ,description_en
+      ,theme_de
+      ,theme_en
+      ,is_active
+      ,is_seasonal
+      ,available_from
+      ,available_till
+      ,module_type_id
+      ,module_group_id
+      ,created_by
+      ,created_at
+      ,updated_by
+      ,updated_at
+      ,is_hidden 
+    ) on 
+    ( target.mod_id=source.id )
+  when  
+	  matched 
+    and @rc>=0
+    and 
+    (
+      --lower(rat)!='u'
+      --and
+      (
+           ( isnull(target.mod_bez1,'')         !=  source.description_de ) 
+        or ( isnull(target.mod_bez2,'')         !=  source.description_en ) 
+        or ( isnull(target.mod_typ_id,0)        !=  source.module_type_id ) 
+        or ( isnull(target.mod_status,'0')      !=  source.is_active ) 
+        or ( isnull(target.mod_gruppe,0)        !=  source.module_group_id ) 
+        or ( target.datvon                      !=  source.available_from ) 
+        or ( target.datbis                      !=  source.available_till ) 
+        or ( isnull(target.saisonver,'0')       !=  source.is_seasonal ) 
+        or ( isnull(target.mod_gvb984_hide,0)   !=  source.is_hidden )
+        or ( target.dataen                      !=  source.updated_at ) 
+        or ( target.useraen                     !=  source.updated_by ) 
+      )
+    ) 
+    or lower(rat)='d' 
+    then 
+      update set 
+         target.mod_bez1        = case when lower(rat)!='d' then source.description_de  end
+        ,target.mod_bez2        = case when lower(rat)!='d' then source.description_en  end
+        ,target.mod_typ_id      = case when lower(rat)!='d' then source.module_type_id  end
+        ,target.mod_status      = case when lower(rat)!='d' then source.is_active       end
+        ,target.mod_gruppe      = case when lower(rat)!='d' then source.module_group_id end
+        ,target.datvon          = case when lower(rat)!='d' then source.available_from  end
+        ,target.datbis          = case when lower(rat)!='d' then source.available_till  end
+        ,target.saisonver       = case when lower(rat)!='d' then source.is_seasonal     end
+        ,target.mod_gvb984_hide = case when lower(rat)!='d' then source.is_hidden       end
+        ,target.dataen          = case when lower(rat)!='d' then source.updated_at      end
+        ,target.useraen         = case when lower(rat)!='d' then source.updated_by      end
+        ,@setDelete             = case when lower(rat) ='d' then 1 else 0 end
+  when  
+    not matched 
+    and @rc>=0
+    then 
+      insert 
+      ( 
+         mod_id
+        ,mod_bez1
+        ,mod_bez2
+        ,mod_typ_id
+        ,mod_status
+        ,dataen
+        ,useraen
+        ,datneu
+        ,userneu
+        ,mod_gruppe
+        ,mod_saison
+        ,mod_thema
+        ,datvon
+        ,datbis
+        ,saisonver	
+        ,mod_path	
+        ,mod_gvb984_hide
+      )
+      values
+      (
+         source.id
+        ,source.description_de
+        ,source.description_en
+        ,source.module_type_id
+        ,source.is_active
+        ,source.dataen
+        ,source.useraen
+        ,source.datneu
+        ,source.userneu
+        ,source.module_group_id
+        ,'0'
+        ,''
+        ,source.available_from
+        ,source.available_till
+        ,source.is_seasonal
+        ,''
+        ,source.is_hidden      
+      )
+    
+  OUTPUT  
+     @rc as rc
+    ,$action as Aktion
+    ,deleted.mod_id
+    ,deleted.mod_bez1	
+    ,deleted.mod_bez2	
+    ,deleted.mod_typ_id	
+    ,deleted.mod_status	
+    ,deleted.dataen	
+    ,deleted.useraen	
+    ,deleted.datneu	
+    ,deleted.userneu	
+    ,deleted.mod_gruppe	
+    ,deleted.mod_saison	
+    ,deleted.mod_thema	
+    ,deleted.datvon	
+    ,deleted.datbis	
+    ,deleted.rowid	
+    ,deleted.saisonver	
+    ,deleted.mod_path	
+    ,deleted.mod_gvb984_hide	
+  into #tmp (rc, Aktion,mod_id,mod_bez1	,mod_bez2	,mod_typ_id	,mod_status	,dataen	,useraen	,datneu	,userneu	,mod_gruppe	,mod_saison	,mod_thema	,datvon	,datbis	,rowid	,saisonver	,mod_path	,mod_gvb984_hide);
+
+  select * from #tmp
+
+select * from [test62].[dbo].ga982 where mod_id=418
+drop table #tmp
+*/
